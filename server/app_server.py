@@ -16,14 +16,21 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def onMessage(self, payload, isBinary):
         try:
+            print 'payload ' + payload
+            print 'isBinary ' + str(isBinary)
             data = json.loads(payload.decode('utf8'))
-            from server.endpoints.agent_endpoints import endpoints
-            endpoints[data[u'endpoint']](data)
+            from endpoints import endpoints
+            endpoints[data[u'endpoint']](self, data)
         except Exception as ex:
-            self.sendMessage(str(ex))
+            print('error')
+            print str(ex)
+            self.send_message({'error': str(ex)})
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {}".format(reason))
+
+    def send_message(self, data):
+        self.sendMessage(json.dumps(data))
 
 
 # if __name__ == '__main__':
